@@ -1,0 +1,17 @@
+# 只使用已经 load 进来的镜像，这里没有 build。
+# 2026-11-07 在测试机上用 docker run 跑通过，没有执行 compose up。
+# 不要在 15GB 生产机上构建。
+name: xiaozhi-cpu-slim
+
+services:
+  xiaozhi:
+    image: xiaozhi-cpu-slim:local
+    restart: "no"
+    ports:
+      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:8003:8003"
+    environment:
+      TZ: Asia/Shanghai
+    volumes:
+      - ${XIAOZHI_MODEL_PT:-/opt/stackchan-xiaozhi.12npXo/models/SenseVoiceSmall/model.pt}:/opt/xiaozhi-esp32-server/models/SenseVoiceSmall/model.pt:ro
+      - ${XIAOZHI_DATA_DIR:-/opt/stackchan-xiaozhi.12npXo/data}:/opt/xiaozhi-esp32-server/data

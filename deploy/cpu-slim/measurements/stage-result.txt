@@ -1,0 +1,28 @@
+date: 2026-11-07
+python: 3.10.22
+torch: 2.2.2+cpu
+torchaudio: 2.2.2+cpu
+torch.version.cuda: None
+libtorch_cuda_so: absent
+libtorch_cpu.so: 450MiB
+torch_dir: 686M
+venv_dir: 1.4G
+funasr: 1.4.16
+onnxruntime: 1.20.1
+model.pt_sha256: 833ca2dcfdf8ec91bd4f31cfac36d6124e0c459074d5e909aec9cabe6204a3ea
+model.pt_size: 936291369
+am.mvn_sha256: 29b3c740a2c0cfc6b308126d31d7f265fa2be74f3bb095cd2f143ea970896ae5
+asr_sample: example/zh.mp3 -> <|zh|><|NEUTRAL|><|Speech|><|withitn|>开放时间早上9点至下午5点。
+asr_rss_after_load_bytes: 1554014208
+server_pid: 9884
+server_vmrss_kb: 1593580
+server_vmhwm_kb: 3267612
+hello: HELLO_SMOKE_OK session_id=80874f80-c65c-4770-8030-9d3285b8c39e
+hello_reply_sample_rate: 16000
+connection_log_output_sample_rate: 24000
+opus_silence_frame_bytes: 20
+edge_tts: real zh-CN-XiaoxiaoNeural "你好" 11232 bytes
+deepseek_http: not called
+docker_server: 29.9.3 overlayfs containerd-snapshotter=true
+docker_image: not built
+source_base: 4f6e9ec6b1169ac6f3dbd78b5d8b1f717e493b9b
