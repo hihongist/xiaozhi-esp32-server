@@ -1,0 +1,20 @@
+date: 2026-11-07
+engine: Docker 29.9.3 overlayfs containerd snapshotter
+base: python:3.10.22-slim-bookworm@sha256:5be5aaecb962a41567bc8041f1e9e3432cb085b037fe057f9a562630b2e4b370
+image: xiaozhi-cpu-slim:local
+inspect_size_bytes: 2890369574
+docker_save_uncompressed_bytes: 694630912
+tar_gz_bytes: 688617801
+tar_gz_sha256: ccb54890b09de2219dc11187b68538ba5ceb4603a2d5802f6711299527b41582
+cold_docker_dir_empty_bytes: 2718142
+cold_docker_dir_after_load_bytes: 2768340556
+cold_load_delta_bytes: 2765622414
+tar_plus_loaded_image_bytes: 3454240215
+build_cache_before_prune_bytes: 2920000000
+build_cache_note: docker system df reported Build Cache 2.92GB during the build. That cache was pruned only on this test VM before the cold load measurement.
+container_memory_current_bytes: 1446383616
+container_memory_peak_bytes: 3156066304
+venv_vmhwm_kb: 3267612
+artifact_copy: failed, close Invalid argument, 0-byte file removed. tar.gz is not attached.
+public_push: not done
+torch_in_image: 2.2.2+cpu cuda None libtorch_cuda absent

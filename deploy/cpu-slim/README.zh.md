@@ -1,42 +1,46 @@
-# CPU 精简小智（本阶段：venv 已测，镜像未测）
+# CPU 精简小智
 
-基线源码 `4f6e9ec6b1169ac6f3dbd78b5d8b1f717e493b9b`。服务端许可证是仓库根目录 MIT `LICENSE`。SenseVoiceSmall 权重适用 `licenses/FunASR-MODEL_LICENSE.txt`（FunASR Model License 1.1）。依赖锁定见 `requirements-cpu.lock`。
+基线 `4f6e9ec6`。MIT 许可证在仓库根目录。SenseVoice 权重许可证在 `licenses/FunASR-MODEL_LICENSE.txt`。依赖锁是 `requirements-cpu.lock`。安装使用 `--no-deps`，避免 FunASR 再拉进未锁定的 `transformers` / `modelscope`。
 
-本阶段没有构建镜像，没有 `docker save` / `docker load`，没有改生产机，没有删除数据，没有 DeepSeek 请求，没有发布镜像。
+镜像只在这台测试机构建和 load。没有 push。没有在 15GB 生产机上构建或加载。`bootstrap.sh` 不覆盖已有 `.config.yaml` 和 `model.pt`。
 
-## 已测（隔离 venv，Python 3.10.22）
+## 实测数字
 
-| 项 | 结果 |
+| 项 | 字节 |
 | --- | --- |
-| 官方 CPU torch `2.2.2+cpu` + torchaudio `2.2.2+cpu` | `torch.version.cuda is None`。`torch/lib` 只有 `libtorch_cpu.so`（450MiB），没有 `libtorch_cuda*.so` |
-| 选定模块启动 | VAD Silero（onnxruntime 1.20.1 CPU）、ASR FunASR 1.4.16、LLM DeepSeek 客户端、TTS 配置为 EdgeTTS、Memory nomem、Intent nointent。监听 `127.0.0.1:8000` |
-| 中文 ASR | 真实。`model.pt` SHA-256 `833ca2dcfdf8ec91bd4f31cfac36d6124e0c459074d5e909aec9cabe6204a3ea`（与 Hugging Face LFS 一致，未入库）。`example/zh.mp3` 识别为「开放时间早上9点至下午5点。」 |
-| WebSocket hello | 真实。对齐 ciniml/stackchan-idf v0.14.3：Device-Id、Client-Id、Protocol-Version、可选 Bearer、opus 16k/60ms、`features.mcp=false`、`listen mode=auto`。服务端回了 `type=hello`、`transport=websocket`、`session_id`。静音 Opus 帧已发送，连接未因此断开 |
-| EdgeTTS | 真实合成，未走完整对话链路。`zh-CN-XiaoxiaoNeural` 文本「你好」得到 11232 字节音频 |
-| 目录占用 | venv 展开 1.4G，其中 torch 目录 686M。`model.pt` 另计 893M，已在用户盘上的那份不要再复制进镜像 |
+| 镜像展开（`docker image inspect` Size） | 2890369574 |
+| `docker save` 未压缩 | 694630912 |
+| `xiaozhi-cpu-slim.tar.gz` | 688617801 |
+| tar.gz SHA-256 | `ccb54890b09de2219dc11187b68538ba5ceb4603a2d5802f6711299527b41582` |
+| 清空镜像后 `/var/lib/docker` | 2718142 |
+| `docker load` 该 tar.gz 之后 | 2768340556 |
+| load 磁盘增量 | 2765622414 |
+| tar.gz 还留在盘上时的合计 | 3454240215 |
+| 构建缓存（prune 前，`docker system df`） | 2.92GB |
+| 容器 cgroup `memory.peak` | 3156066304 |
+| 先前 venv 进程 VmHWM | 3267612 kB |
 
-服务进程（PID 9884，加载权重并完成 hello 之后）：RSS 1593580 kB（约 1.52GiB），VmHWM 3267612 kB（约 3.12GiB）。这是这一次加载的峰值，不是生产机内存。
+基础镜像 `python:3.10.22-slim-bookworm@sha256:5be5aaecb962a41567bc8041f1e9e3432cb085b037fe057f9a562630b2e4b370`。镜像内 `torch 2.2.2+cpu`，`torch.version.cuda is None`，没有 `libtorch_cuda*`。
 
-## 未测
+测试机 `free`：16003 MiB，Swap 0。容器峰值约 2.94GiB，venv 进程 VmHWM 约 3.12GiB。可用内存低于这个峰值时可能被 OOM 杀掉。没有测过更小内存，也不保证加了交换区就稳。生产机的 `free -h` 还没拿到，所以这里不写它的内存。
 
-- Docker 镜像。本环境 Docker Engine 29.9.3 的守护进程可以连通，存储驱动是 overlayfs，`containerd snapshotter=true`。没有执行 build，所以没有压缩层、展开层和 `docker load` 峰值。
-- 听中文 → DeepSeek → 下行语音的端到端。没有 API 密钥，不能声称这条链路通过。
-- 设备实机播放。hello 回复里的 `audio_params` 被服务端换成了客户端上报的 16000Hz，而连接建立日志仍写「配置输出音频采样率为: 24000」。下行 Opus 没在本阶段生成，播放采样率未验证。
-- 公网 TLS 反代，以及与设备可选 Bearer 兼容的部署层认证。这是后续要求，本阶段不实现、不部署。
-- 原生 `AuthManager` 签发与续签。它生成的是绑定 `client_id|device_id` 的 `HMAC.timestamp`，默认约 30 天过期。没有核实固件会续签，这里不提供、不编造 `server.auth.token`。冒烟时 `auth.enabled=false`，带上的 Bearer 没有被服务端校验。
+tar.gz 复制到交付目录时 `close` 返回 `Invalid argument`，文件变成 0 字节，已删掉。包没有附在 PR 上，也没有公开上传。SHA-256 对的是测试机上的 `/tmp/xz-runtime/out/xiaozhi-cpu-slim.tar.gz`。
 
-## 磁盘
+## 已测行为
 
-用户描述的生产盘是 15GB 总量、已用 5.3GB、空闲 8.9GB，另有两个不能动的容器。本阶段没有在那台机器上复测。只根据这里的 venv：Python 依赖展开已经 1.4G，权重 893M 已在盘上。Docker 29 还会同时保留压缩内容和展开快照，构建或 load 时峰值高于最终镜像。在镜像数字测出来之前，不能判断 8.9GB 够不够，也不要在生产机上构建或加载。
+- 镜像容器挂上已有 `model.pt`（只读，SHA-256 `833ca2dcfdf8ec91bd4f31cfac36d6124e0c459074d5e909aec9cabe6204a3ea`）后完成 FunASR 加载。
+- 本地假 OpenAI 接口只返回「你好」，没有请求 DeepSeek。EdgeTTS 真实合成。下行 32 个 Opus 包，按 24000Hz 解码为 1440 采样/帧（60ms），合计 1.92 秒。日志有「发送第一段语音: 你好」。
+- 客户端 hello 报上行 16000。服务端回复 24000/60ms。StackChan v0.14.3 用这个回复里的采样率开下行解码器。libopus 在 16000 下也能解出 960 采样，那是重采样，不能当成这包就是 16kHz。
+- 回环 nginx TLS：无 Bearer 和错误 Bearer 的 HTTP/WebSocket 都是 401。`Bearer local-test-bearer` 可以通过，并完成 hello。这是测试口令，不是 `server.auth.token`。证书是临时自签，没有部署到生产机。
 
-官方 `server_latest` 解压 `libtorch_cuda_linalg.so` 时磁盘满，是 CUDA 轮子的问题。CPU 轮子去掉了该文件，但这只说明 venv 里没有它，不能外推成「生产机一定装得下镜像」。
+DeepSeek 云端整段对话未测。
 
-## 依赖取舍（按真实 import）
+## 生产机可以怎么做
 
-SenseVoice 注册实际还需要：`rapidfuzz`、`tiktoken`、`jamo`、`jaconv`、`torch-complex`、`regex`、`hydra-core`、`sentencepiece`，以及 `librosa` 带进来的 `numba` / `llvmlite` / `scipy`。`modelscope`、`transformers`、`umap-learn`、`oss2`、`sherpa-onnx`、`vosk`、`mcp`、`httpx2` 没有装。`httpx2` 2.16.0 要求 Python ≥3.11，服务端 MCP 改为第一次初始化时再导入，语音进程启动时不导入它。`pytorch_wpe` 未装；本次加载走的是 `WavFrontend`。
+等三样东西到了再动生产机：`free -h`、公网域名和正式证书、DeepSeek 密钥。密钥只写进已有 `data/.config.yaml` 的副本，不要覆盖原文件。
 
-`am.mvn`（11203 字节，SHA-256 `29b3c740a2c0cfc6b308126d31d7f265fa2be74f3bb095cd2f143ea970896ae5`）原来不在仓库里，本地模型加载需要它，已放入 `models/SenseVoiceSmall/`。`model.pt` 继续只挂载，不入库。
+不要在那台机器上 `docker build`。构建缓存实测还有 2.92GB。可以做的是把上面的 tar.gz 传上去之后 `docker load`，再删掉 tar。load 增量 2765622414 字节，tar 还在时合计 3454240215 字节。用户给出的空闲是 8.9GB，这个 load 峰值落在里面。这不包含再构建，也不包含再拉官方 CUDA 镜像。`model.pt` 继续用已经在盘上的那份。
 
-## 配置
+服务只绑 `127.0.0.1:8000`。公网用 `tls-proxy/nginx.conf` 这种反代：TLS 终止，校验 `Authorization: Bearer <你自己定的口令>`，再转到 `127.0.0.1:8000`。设备里的 XiaoZhi URL 用 `wss://域名/xiaozhi/v1/`，Bearer 填同一口令。原生签发续签没核实，不要填 `server.auth.token`。
 
-`config.cpu-slim.yaml.example` 选择 FunASR + SileroVAD + DeepSeek + EdgeTTS。`model_name` 写成官方文档当前的 `deepseek-flash`，可以改。`bootstrap.sh <目录>` 只在目标不存在时复制 example，已有 `.config.yaml` 和 `model.pt` 都不改。它不会把 example 自动变成生效的 `.config.yaml`。已有官方模板若没有这些 `selected_module`，需要人工合并，不要覆盖原文件。
+`model_name` 仍按 2026-11-07 文档用 `deepseek-flash`，可改。没有密钥就不要启动对外服务。

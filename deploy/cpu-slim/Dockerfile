@@ -1,7 +1,6 @@
-# 本文件是与隔离 venv 相同的安装配方。
-# 2026-11-07 本阶段没有执行 docker build / save / load，镜像体积未测。
 # 不要在 15GB 生产机上构建本镜像。
-FROM python:3.10.22-slim-bookworm
+# 基础镜像 digest 于 2026-11-07 由 docker pull python:3.10.22-slim-bookworm 得到。
+FROM python:3.10.22-slim-bookworm@sha256:5be5aaecb962a41567bc8041f1e9e3432cb085b037fe057f9a562630b2e4b370
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends libopus0 ffmpeg && \
@@ -17,10 +16,10 @@ RUN python -m pip install --no-cache-dir --upgrade pip && \
       --index-url https://download.pytorch.org/whl/cpu \
       "torch==2.2.2+cpu" "torchaudio==2.2.2+cpu" && \
     grep -E -v '^(torch|torchaudio)==' /tmp/requirements-cpu.lock > /tmp/requirements-cpu.rest.txt && \
-    python -m pip install --no-cache-dir \
+    python -m pip install --no-cache-dir --no-deps \
       --index-url https://pypi.org/simple \
       -r /tmp/requirements-cpu.rest.txt && \
-    python -c "import torch; assert torch.version.cuda is None, torch.version.cuda"
+    python -c "import importlib.util,torch,funasr,onnxruntime,edge_tts,openai; assert torch.version.cuda is None; assert importlib.util.find_spec('transformers') is None; assert importlib.util.find_spec('modelscope') is None; assert importlib.util.find_spec('nvidia') is None"
 
 COPY main/xiaozhi-server /opt/xiaozhi-esp32-server
 COPY deploy/cpu-slim/licenses/FunASR-MODEL_LICENSE.txt /opt/xiaozhi-esp32-server/models/SenseVoiceSmall/MODEL_LICENSE.txt

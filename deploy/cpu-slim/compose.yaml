@@ -1,13 +1,11 @@
-# 回环草案。2026-11-07 未执行 docker compose build/up，镜像未构建。
-# 不要在生产机上运行本文件的 build。
+# 只使用已经 load 进来的镜像，这里没有 build。
+# 2026-11-07 在测试机上用 docker run 跑通过，没有执行 compose up。
+# 不要在 15GB 生产机上构建。
 name: xiaozhi-cpu-slim
 
 services:
   xiaozhi:
-    build:
-      context: ../..
-      dockerfile: deploy/cpu-slim/Dockerfile
-    image: xiaozhi-cpu-slim:untested
+    image: xiaozhi-cpu-slim:local
     restart: "no"
     ports:
       - "127.0.0.1:8000:8000"
@@ -15,7 +13,5 @@ services:
     environment:
       TZ: Asia/Shanghai
     volumes:
-      # 只读复用已有权重，不把 model.pt 打进镜像，也不覆盖宿主机文件。
       - ${XIAOZHI_MODEL_PT:-/opt/stackchan-xiaozhi.12npXo/models/SenseVoiceSmall/model.pt}:/opt/xiaozhi-esp32-server/models/SenseVoiceSmall/model.pt:ro
-      # 挂载已有 data。入口发现缺少 .config.yaml 会退出，不会改写已有内容。
       - ${XIAOZHI_DATA_DIR:-/opt/stackchan-xiaozhi.12npXo/data}:/opt/xiaozhi-esp32-server/data

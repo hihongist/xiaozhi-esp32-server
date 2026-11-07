@@ -1,0 +1,14 @@
+mock_llm: local OpenAI stream returned 你好. api.deepseek.com not called.
+real_tts: EdgeTTS zh-CN-XiaoxiaoNeural
+venv_and_container: both DOWNLINK_OPUS_OK
+container_session: 45fa3e7d-af4b-40b9-afe9-8b7c22a7967e
+hello_client_offered_hz: 16000
+hello_server_advertised_hz: 24000
+hello_frame_ms: 60
+opus_packets: 32
+pcm_samples_at_24000: 46080
+pcm_ms_at_24000: 1920
+decode_24000: 1440 samples per 60ms frame
+decode_16000: also accepted by libopus and returned 960 samples. That is resampler output, not proof the packet is 16 kHz.
+client_v0.14.3: uses server hello sample_rate as the Opus decoder rate, then plays toward 24 kHz. Advertising 24000 matches the encoder.
+cloud_deepseek: untested

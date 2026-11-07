@@ -52,7 +52,18 @@ async def handleHelloMessage(conn: "ConnectionHandler", msg_json):
         format = audio_params.get("format")
         conn.logger.bind(tag=TAG).debug(f"客户端音频格式: {format}")
         conn.audio_format = format
-        conn.welcome_msg["audio_params"] = audio_params
+        # 客户端 sample_rate 是上行麦克风。StackChan v0.14.3 上行 Opus 为 16 kHz，
+        # 并用服务端 hello 的 audio_params.sample_rate 打开下行解码器。
+        # 下行 Opus 按 conn.sample_rate（配置输出率，默认 24000）编码，
+        # 所以回复必须保留服务端输出率和帧长，不能整段换成客户端参数。
+        server_audio = dict(conn.welcome_msg.get("audio_params") or {})
+        merged = dict(server_audio)
+        merged.update(audio_params)
+        if "sample_rate" in server_audio:
+            merged["sample_rate"] = server_audio["sample_rate"]
+        if "frame_duration" in server_audio:
+            merged["frame_duration"] = server_audio["frame_duration"]
+        conn.welcome_msg["audio_params"] = merged
     features = msg_json.get("features")
     if features:
         conn.logger.bind(tag=TAG).debug(f"客户端特性: {features}")
