@@ -1,5 +1,7 @@
 # CPU 精简小智
 
+**停。** 生产机 `free -h`：总内存 961MiB，可用 559MiB，swap 255MiB 里只剩 201MiB。本路线测到的容器 `memory.peak` 是 3156066304 字节（约 2.94GiB），venv 进程 VmHWM 是 3267612 kB（约 3.12GiB）。961MiB 装不下这次加载。这是硬性不适配，不是再调参能解决的。不要把镜像 load 到这台机器，也不要在这里继续做本地识别。已生成的包保留，不删除。StackChan 的离线角色、触摸、喂食和动作不在这个服务端仓库里做；语音后端另案。
+
 基线 `4f6e9ec6`。MIT 许可证在仓库根目录。SenseVoice 权重许可证在 `licenses/FunASR-MODEL_LICENSE.txt`。依赖锁是 `requirements-cpu.lock`。安装使用 `--no-deps`，避免 FunASR 再拉进未锁定的 `transformers` / `modelscope`。
 
 镜像只在这台测试机构建和 load。没有 push。没有在 15GB 生产机上构建或加载。`bootstrap.sh` 不覆盖已有 `.config.yaml` 和 `model.pt`。
@@ -35,12 +37,6 @@ tar.gz 复制到交付目录时 `close` 返回 `Invalid argument`，文件变成
 
 DeepSeek 云端整段对话未测。
 
-## 生产机可以怎么做
+## 不要部署到这台 1GB 机器
 
-等三样东西到了再动生产机：`free -h`、公网域名和正式证书、DeepSeek 密钥。密钥只写进已有 `data/.config.yaml` 的副本，不要覆盖原文件。
-
-不要在那台机器上 `docker build`。构建缓存实测还有 2.92GB。可以做的是把上面的 tar.gz 传上去之后 `docker load`，再删掉 tar。load 增量 2765622414 字节，tar 还在时合计 3454240215 字节。用户给出的空闲是 8.9GB，这个 load 峰值落在里面。这不包含再构建，也不包含再拉官方 CUDA 镜像。`model.pt` 继续用已经在盘上的那份。
-
-服务只绑 `127.0.0.1:8000`。公网用 `tls-proxy/nginx.conf` 这种反代：TLS 终止，校验 `Authorization: Bearer <你自己定的口令>`，再转到 `127.0.0.1:8000`。设备里的 XiaoZhi URL 用 `wss://域名/xiaozhi/v1/`，Bearer 填同一口令。原生签发续签没核实，不要填 `server.auth.token`。
-
-`model_name` 仍按 2026-11-07 文档用 `deepseek-flash`，可改。没有密钥就不要启动对外服务。
+上面的磁盘数字只说明测试机上的镜像有多大。生产机内存是 961MiB，低于实测加载峰值，load 或启动都会内存不足。分块包已经写在测试机的 artifacts 里，不再继续交付，也不再做这条本地识别路线。
