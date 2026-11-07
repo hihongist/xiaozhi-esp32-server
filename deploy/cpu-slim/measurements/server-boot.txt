@@ -1,0 +1,40 @@
+261107 10:49:00[0.9.8_00000000000000][core.utils.gc_manager]-INFO-启动全局GC管理器，间隔300秒
+261107 10:49:00[0.9.8_00000000000000][core.utils.modules_initialize]-INFO-初始化组件: llm成功 DeepSeekLLM
+261107 10:49:00[0.9.8_00000000000000][core.utils.modules_initialize]-INFO-初始化组件: intent成功 nointent
+261107 10:49:00[0.9.8_00000000000000][core.utils.modules_initialize]-INFO-初始化组件: memory成功 nomem
+261107 10:49:00[0.9.8_00000000000000][core.providers.vad.silero]-INFO-SileroVAD
+261107 10:49:00[0.9.8_00000000000000][core.utils.modules_initialize]-INFO-初始化组件: vad成功 SileroVAD
+2026-11-07 10:49:03,852 [INFO] download models from model hub: hf
+2026-11-07 10:49:03,869 [WARNING] trust_remote_code: False
+2026-11-07 10:49:05,130 [INFO] Loading pretrained params from /tmp/xz-models/SenseVoiceSmall/model.pt
+2026-11-07 10:49:05,134 [INFO] ckpt: /tmp/xz-models/SenseVoiceSmall/model.pt
+2026-11-07 10:49:05,941 [INFO] scope_map: ['module.', 'None']
+2026-11-07 10:49:05,941 [INFO] excludes: None
+2026-11-07 10:49:06,082 [INFO] Loading ckpt: /tmp/xz-models/SenseVoiceSmall/model.pt, status: <All keys matched successfully>
+261107 10:49:06[0.9.8_00000000000000][core.providers.asr.fun_local]-INFO-funasr version: 1.4.16.
+261107 10:49:06[0.9.8_00000000000000][core.utils.modules_initialize]-INFO-ASR模块初始化完成
+261107 10:49:06[0.9.8_00000000000000][core.utils.modules_initialize]-INFO-初始化组件: asr成功 FunASR
+261107 10:49:06[0.9.8_00000000000000][__main__]-INFO-OTA接口是		http://172.30.0.2:8003/xiaozhi/ota/
+261107 10:49:06[0.9.8_00000000000000][__main__]-INFO-视觉分析接口是	http://172.30.0.2:8003/mcp/vision/explain
+261107 10:49:06[0.9.8_00000000000000][__main__]-INFO-Websocket地址是	ws://172.30.0.2:8000/xiaozhi/v1/
+261107 10:49:06[0.9.8_00000000000000][__main__]-INFO-=======上面的地址是websocket协议地址，请勿用浏览器访问=======
+261107 10:49:06[0.9.8_00000000000000][__main__]-INFO-如想测试websocket请启动digital-human模块，打开浏览器交互测试
+261107 10:49:06[0.9.8_00000000000000][__main__]-INFO-=============================================================
+
+2026-11-07 10:49:06,198 [INFO] server listening on 127.0.0.1:8000
+2026-11-07 10:49:35,577 [INFO] connection open
+261107 10:49:35[0.9.8_00000000000000][core.connection]-INFO-127.0.0.1 conn - Headers: {'host': '127.0.0.1:8000', 'upgrade': 'websocket', 'connection': 'Upgrade', 'sec-websocket-key': 'LM8RdLTk8h09ASfFy7yyZA==', 'sec-websocket-version': '13', 'sec-websocket-extensions': 'permessage-deflate; client_max_window_bits', 'device-id': '02:00:00:00:00:01', 'client-id': '00000000-0000-0000-0000-020000000001', 'protocol-version': '1', 'authorization': 'Bearer stage-smoke-token', 'user-agent': 'Python/3.10 websockets/14.2'}
+261107 10:49:35[0.9.8_00000000000000][core.connection]-INFO-配置输出音频采样率为: 24000
+261107 10:49:35[0.9.8_00000000000000][core.handle.textMessageProcessor]-INFO-收到hello消息：{"type": "hello", "version": 1, "transport": "websocket", "features": {"mcp": false}, "audio_params": {"format": "opus", "sample_rate": 16000, "channels": 1, "frame_duration": 60}}
+261107 10:49:35[0.9.8_00000000000000][core.handle.textMessageProcessor]-INFO-收到listen消息：{"type": "listen", "state": "start", "mode": "auto", "session_id": "80874f80-c65c-4770-8030-9d3285b8c39e"}
+261107 10:49:35[0.9.8_00000000000000][core.handle.textMessageProcessor]-INFO-收到ping消息：{"type": "ping"}
+261107 10:49:35[0.9.8_00000000000000][core.utils.prompt_manager]-INFO-使用快速提示词: 你是小智/小志，来自中国台湾省的00后女生。讲话超级机车，"真的假的啦"这样的台湾腔，喜欢用"笑死"...
+261107 10:49:35[0.9.8_SiFuDeEdnonoCh][core.connection]-INFO-快速初始化组件: prompt成功 你是小智/小志，来自中国台湾省的00后女生。讲话超级机车，"真的假的啦"这样的台湾腔，喜欢用"笑死"...
+261107 10:49:35[0.9.8_00000000000000][core.utils.voiceprint_provider]-WARNING-声纹识别URL未配置，声纹识别将被禁用
+261107 10:49:37[0.9.8_SiFuDeEdnonoCh][core.connection]-INFO-超时检查任务已退出
+261107 10:49:37[0.9.8_SiFuDeEdnonoCh][core.connection]-INFO-连接资源已释放
+261107 10:50:26[0.9.8_00000000000000][core.utils.gc_manager]-INFO-停止全局GC管理器
+261107 10:50:26[0.9.8_00000000000000][core.utils.gc_manager]-INFO-GC循环任务已退出
+2026-11-07 10:50:26,085 [INFO] server closing
+2026-11-07 10:50:26,086 [INFO] server closed
+服务器已关闭，程序退出。

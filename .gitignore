@@ -164,6 +164,8 @@ main/manager-web/node_modules
 
 # model files
 main/xiaozhi-server/models/SenseVoiceSmall/model.pt
+main/xiaozhi-server/data/.config.yaml
+main/xiaozhi-server/data/.wakeup_words.yaml
 main/xiaozhi-server/models/sherpa-onnx*
 /main/xiaozhi-server/audio_ref/
 /audio_ref/

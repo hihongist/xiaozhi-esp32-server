@@ -1,22 +1,27 @@
 """服务端MCP工具执行器"""
 
-from typing import Dict, Any, Optional
-from ..base import ToolType, ToolDefinition, ToolExecutor
+from typing import Any, Dict, Optional
+from ..base import ToolDefinition, ToolExecutor, ToolType
 from plugins_func.register import Action, ActionResponse
-from .mcp_manager import ServerMCPManager
 
 
 class ServerMCPExecutor(ToolExecutor):
-    """服务端MCP工具执行器"""
+    """服务端MCP工具执行器。
+
+    mcp / httpx2 推迟到 initialize() 再导入。httpx2 2.16.0 要求
+    Python>=3.11，而本服务运行时是 Python 3.10；语音主路径不能在启动时导入它们。
+    """
 
     def __init__(self, conn):
         self.conn = conn
-        self.mcp_manager: Optional[ServerMCPManager] = None
+        self.mcp_manager: Optional[Any] = None
         self._initialized = False
 
     async def initialize(self):
         """初始化MCP管理器"""
         if not self._initialized:
+            from .mcp_manager import ServerMCPManager
+
             self.mcp_manager = ServerMCPManager(self.conn)
             self._initialized = True
             await self.mcp_manager.initialize_servers()

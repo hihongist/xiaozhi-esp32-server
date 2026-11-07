@@ -5,3 +5,5 @@ __pycache__
 Dockerfile
 tmp/
 data/
+main/xiaozhi-server/data/.config.yaml
+main/xiaozhi-server/data/.wakeup_words.yaml

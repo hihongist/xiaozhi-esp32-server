@@ -1,0 +1,40 @@
+# 覆盖示例。不要直接覆盖已有 data/.config.yaml。
+# 没有 DeepSeek 密钥时不要填假密钥，也不要发起请求。
+# model_name 按 2026-11-07 官方文档 https://api-docs.deepseek.com/ ：
+#   当前名称是 deepseek-flash 与 deepseek-v4-pro。
+#   deepseek-v4-flash 仍被接受，但是遗留别名；对应模型已退役，
+#   请求由 DeepSeek-V4.1-Flash-1017 提供并按 Flash 计费。未做真实调用，不能当成已验证。
+server:
+  ip: 127.0.0.1
+  port: 8000
+  http_port: 8003
+  auth:
+    enabled: false
+
+selected_module:
+  VAD: SileroVAD
+  ASR: FunASR
+  LLM: DeepSeekLLM
+  TTS: EdgeTTS
+  Memory: nomem
+  Intent: nointent
+
+ASR:
+  FunASR:
+    type: fun_local
+    model_dir: models/SenseVoiceSmall
+    output_dir: tmp/
+    language: zh
+
+LLM:
+  DeepSeekLLM:
+    type: openai
+    model_name: deepseek-flash
+    url: https://api.deepseek.com
+    api_key: ""
+
+TTS:
+  EdgeTTS:
+    type: edge
+    voice: zh-CN-XiaoxiaoNeural
+    output_dir: tmp/
